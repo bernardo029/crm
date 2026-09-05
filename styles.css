@@ -1,0 +1,16 @@
+import { FormEvent, useState } from 'react'
+import { Building2 } from 'lucide-react'
+import { supabase } from '../lib/supabase'
+
+export function Onboarding({ onCreated }:{ onCreated:()=>void }) {
+  const [name,setName]=useState('')
+  const [loading,setLoading]=useState(false)
+  const [error,setError]=useState('')
+  async function submit(e:FormEvent){
+    e.preventDefault(); setLoading(true); setError('')
+    const { error } = await supabase.rpc('create_organization',{org_name:name})
+    if(error) setError(error.message); else onCreated()
+    setLoading(false)
+  }
+  return <div className="center-page"><div className="onboarding-card"><div className="round-icon"><Building2/></div><h2>Crie sua empresa</h2><p>Os dados dessa empresa ficarão isolados dos demais clientes do CRM.</p><form onSubmit={submit}><label>Nome da empresa<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Kero Motors" required /></label>{error&&<div className="form-message">{error}</div>}<button className="primary wide" disabled={loading}>{loading?'Criando...':'Criar empresa e pipeline'}</button></form></div></div>
+}

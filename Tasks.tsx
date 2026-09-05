@@ -1,0 +1,7 @@
+import { Plus, Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import type { Contact } from '../lib/types'
+export function Contacts({contacts,onAdd,onSelect}:{contacts:Contact[];onAdd:()=>void;onSelect:(c:Contact)=>void}){
+ const [q,setQ]=useState(''); const filtered=useMemo(()=>contacts.filter(c=>`${c.name} ${c.email||''} ${c.phone||''}`.toLowerCase().includes(q.toLowerCase())),[contacts,q])
+ return <><div className="page-heading"><div><span className="eyebrow">Base comercial</span><h1>Contatos</h1><p>Leads e clientes centralizados.</p></div><button className="primary" onClick={onAdd}><Plus size={17}/>Novo contato</button></div><div className="toolbar"><div className="search"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar contato..."/></div><span>{filtered.length} contatos</span></div><section className="panel table-panel"><table><thead><tr><th>Nome</th><th>Contato</th><th>Origem</th><th>Status</th><th>Tags</th></tr></thead><tbody>{filtered.map(c=><tr key={c.id} onClick={()=>onSelect(c)}><td><strong>{c.name}</strong></td><td><div className="stack"><span>{c.phone||c.whatsapp||'—'}</span><small>{c.email||''}</small></div></td><td>{c.source||'—'}</td><td><span className="status-pill">{c.status}</span></td><td>{(c.tags||[]).map(t=><span className="tag" key={t}>{t}</span>)}</td></tr>)}</tbody></table>{filtered.length===0&&<div className="empty">Nenhum contato encontrado.</div>}</section></>
+}

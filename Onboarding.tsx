@@ -1,0 +1,12 @@
+import { CircleDollarSign, ContactRound, Target, Trophy } from 'lucide-react'
+import type { Contact, Deal, Task } from '../lib/types'
+
+const brl = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0})
+export function Dashboard({contacts,deals,tasks}:{contacts:Contact[];deals:Deal[];tasks:Task[]}){
+  const open=deals.filter(d=>d.status==='open')
+  const won=deals.filter(d=>d.status==='won')
+  const pipeline=open.reduce((s,d)=>s+Number(d.value||0),0)
+  const pending=tasks.filter(t=>t.status==='pending')
+  return <><div className="page-heading"><div><span className="eyebrow">Visão geral</span><h1>Dashboard</h1><p>Acompanhe os principais números da operação comercial.</p></div></div><div className="kpi-grid"><Kpi icon={<ContactRound/>} label="Contatos" value={String(contacts.length)} meta="Base comercial"/><Kpi icon={<Target/>} label="Negócios abertos" value={String(open.length)} meta={`${pending.length} tarefas pendentes`}/><Kpi icon={<CircleDollarSign/>} label="Valor em pipeline" value={brl.format(pipeline)} meta="Oportunidades abertas"/><Kpi icon={<Trophy/>} label="Negócios ganhos" value={String(won.length)} meta={brl.format(won.reduce((s,d)=>s+Number(d.value||0),0))}/></div><div className="dashboard-grid"><section className="panel"><div className="panel-head"><h3>Negócios em andamento</h3><span>{open.length}</span></div><div className="simple-list">{open.slice(0,6).map(d=><div key={d.id} className="simple-row"><div><strong>{d.title}</strong><small>{contacts.find(c=>c.id===d.contact_id)?.name || 'Sem contato'}</small></div><b>{brl.format(Number(d.value||0))}</b></div>)}{open.length===0&&<div className="empty">Nenhum negócio aberto.</div>}</div></section><section className="panel"><div className="panel-head"><h3>Próximas tarefas</h3><span>{pending.length}</span></div><div className="simple-list">{pending.slice(0,6).map(t=><div key={t.id} className="simple-row"><div><strong>{t.title}</strong><small>{t.due_at?new Date(t.due_at).toLocaleString('pt-BR'):'Sem vencimento'}</small></div><span className={`priority ${t.priority}`}>{t.priority}</span></div>)}{pending.length===0&&<div className="empty">Nenhuma tarefa pendente.</div>}</div></section></div></>
+}
+function Kpi({icon,label,value,meta}:{icon:any;label:string;value:string;meta:string}){return <div className="kpi"><div className="kpi-icon">{icon}</div><div><span>{label}</span><strong>{value}</strong><small>{meta}</small></div></div>}
